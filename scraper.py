@@ -1,8 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 
-import re
-
 def get_container():
     url = 'https://www.bbc.com/sport/football/teams/arsenal'
     r = requests.get(url)
@@ -17,6 +15,7 @@ def get_scores():
     scores_container = get_container().find('h2', string="Results").find_next_sibling()
     scores_html = scores_container.find_all('ul')
     scores = [format_score(score) for score in scores_html]
+
     return scores
 
 def format_score(score_html):
@@ -34,6 +33,7 @@ def get_fixtures():
     fixtures_container = get_container().find('h2', string="Fixtures").find_next_sibling()
     fixtures_html = fixtures_container.find_all('ul')
     fixtures = [format_fixture(fixture) for fixture in fixtures_html]
+
     return fixtures
 
 def format_fixture(fixture_html):
