@@ -5,7 +5,7 @@ def get_container():
     url = 'https://www.bbc.com/sport/football/teams/arsenal'
     r = requests.get(url)
     html = r.text
-    soup = BeautifulSoup(html, "lxml")
+    soup = BeautifulSoup(html, 'html.parser')
 
     container = soup.find('div', class_="live-scores-index-container")
 
@@ -47,8 +47,5 @@ def format_fixture(fixture_html):
     return fixture
 
 if __name__ == '__main__':
-    # for s in score.find_all(True):
-    #     print("{}: {}".format(s.name, s.text))
-    #     print(s.attrs)
-    #     print("---")
-    print(get_fixtures())
+    for score in get_scores():
+	print score
