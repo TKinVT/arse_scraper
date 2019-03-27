@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import datetime
 
 def get_container():
     url = 'https://www.bbc.com/sport/football/teams/arsenal'
@@ -59,8 +60,9 @@ def format_fixture(fixture_html):
 
     return fixture
 
-def format_date(unf_date):
+def format_date(unf_date, resp="obj"):
     day, date, month, year = unf_date.split()
+    date = filter(lambda x: x.isnumeric(), date)
 
     formed_date = {
                   "day":day,
@@ -71,6 +73,15 @@ def format_date(unf_date):
 
     return formed_date
 
+def date_obj(unf_date):
+    _date = format_date(unf_date)
+    year = int(_date['year'])
+    month = datetime.datetime.strptime(_date['month'], '%B').month
+    day = int(_date['date'])
+
+    date_object = datetime.date(year, month, day)
+
+    return date_object
 
 if __name__ == '__main__':
     print(get_scores())
