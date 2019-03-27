@@ -18,17 +18,6 @@ def get_scores():
 
     return scores
 
-def format_score(score_html):
-    date = score_html.find_parent().find('h3').text
-    home, away = score_html.find_all('span', class_='qa-full-team-name')
-    home_team = home.text
-    home_score = home.find_next().text
-    away_team = away.text
-    away_score = away.find_next().text
-    score = "{}: {} {} - {} {}".format(date, home_team, home_score, away_score, away_team)
-
-    return score
-
 def get_fixtures():
     fixtures_container = get_container().find('h2', string="Fixtures").find_next_sibling()
     fixtures_html = fixtures_container.find_all('ul')
@@ -36,16 +25,53 @@ def get_fixtures():
 
     return fixtures
 
+def format_score(score_html):
+    date = score_html.find_parent().find('h3').text
+    competition = score_html.find_parent().find('h4').text
+    date = format_date(date)
+    home, away = score_html.find_all('span', class_='qa-full-team-name')
+
+    score = {
+            "home_team":home.text,
+            "home_score":home.find_next().text,
+            "away_team":away.text,
+            "away_score":away.find_next().text,
+            "date":date,
+            "competition":competition
+            }
+
+    return score
+
 def format_fixture(fixture_html):
     date = fixture_html.find_parent().find('h3').text
+    date = format_date(date)
+    competition = fixture_html.find_parent().find('h4').text
     time = fixture_html.find('span', class_='sp-c-fixture__number--time').text
     home, away = fixture_html.find_all('span', class_='qa-full-team-name')
-    home_team = home.text
-    away_team = away.text
-    fixture = "{} @{} GMT: {} - {}".format(date, time, home_team, away_team)
+
+    fixture = {
+              "home_team":home.text,
+              "away_team":away.text,
+              "date":date,
+              "time":time,
+              "competition":competition
+              }
 
     return fixture
 
+def format_date(unf_date):
+    day, date, month, year = unf_date.split()
+
+    formed_date = {
+                  "day":day,
+                  "date":date,
+                  "month":month,
+                  "year":year
+                  }
+
+    return formed_date
+
+
 if __name__ == '__main__':
-    for score in get_scores():
-	print score
+    print(get_scores())
+    print(get_fixtures())
