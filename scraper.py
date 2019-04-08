@@ -1,25 +1,30 @@
 import requests
 from bs4 import BeautifulSoup
+import datetime
 
-def get_container():
+def make_soup():
     url = 'https://www.bbc.com/sport/football/teams/arsenal'
     r = requests.get(url)
     html = r.text
     soup = BeautifulSoup(html, 'html.parser')
 
+    return soup
+
+def get_scores_fixtures_container():
+    soup = make_soup()
     container = soup.find('div', class_="live-scores-index-container")
 
     return container
 
 def get_scores():
-    scores_container = get_container().find('h2', string="Results").find_next_sibling()
+    scores_container = get_scores_fixtures_container().find('h2', string="Results").find_next_sibling()
     scores_html = scores_container.find_all('ul')
     scores = [format_html(score) for score in scores_html]
 
     return scores
 
 def get_fixtures():
-    fixtures_container = get_container().find('h2', string="Fixtures").find_next_sibling()
+    fixtures_container = get_scores_fixtures_container().find('h2', string="Fixtures").find_next_sibling()
     fixtures_html = fixtures_container.find_all('ul')
     fixtures = [format_html(fixture) for fixture in fixtures_html]
 
@@ -57,8 +62,9 @@ def format_html(html):
 
     return dict
 
-def format_date(unf_date):
+def format_date(unf_date, resp="obj"):
     day, date, month, year = unf_date.split()
+    date = filter(lambda x: x.isnumeric(), date)
 
     formed_date = {
                   "day":day,
@@ -69,6 +75,31 @@ def format_date(unf_date):
 
     return formed_date
 
+def date_obj(unf_date):
+    _date = format_date(unf_date)
+    year = int(_date['year'])
+    month = datetime.datetime.strptime(_date['month'], '%B').month
+    day = int(_date['date'])
+
+    date_object = datetime.date(year, month, day)
+
+    return date_object
+
+def get_articles():
+    soup = make_soup()
+    container = soup.find('h2', id="top-stories-title").find_next_sibling()
+    articles_html = container.find_all('h3')
+    articles = [format_article(x) for x in articles_html]
+
+    return articles
+
+def format_article(article_html):
+    article = {
+              "url":article_html.a['href'],
+              "title":article_html.a.text
+              }
+
+    return article
 
 if __name__ == '__main__':
     print(get_scores())

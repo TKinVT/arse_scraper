@@ -25,4 +25,3 @@ def ars():
 
 if __name__ == '__main__':
     app.run(debug=True)
-    #get_data('https://hooks.slack.com/commands/TGATKRPMM/579406050593/BMsHns0Pks7R091YI2yBQDlg')
