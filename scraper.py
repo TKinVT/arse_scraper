@@ -23,6 +23,13 @@ def get_scores():
 
     return scores
 
+def get_last_score():
+    score_container = get_scores_fixtures_container().find('h2', string="Results").find_next_sibling()
+    score_html = score_container.find('ul')
+    score = format_html(score_html)
+
+    return score
+
 def get_fixtures():
     fixtures_container = get_scores_fixtures_container().find('h2', string="Fixtures").find_next_sibling()
     fixtures_html = fixtures_container.find_all('ul')
@@ -30,8 +37,15 @@ def get_fixtures():
 
     return fixtures
 
+def get_next_fixture():
+    fixture_container = get_scores_fixtures_container().find('h2', string="Fixtures").find_next_sibling()
+    fixture_html = fixture_container.find('ul')
+    next_fixture = format_html(fixture_html)
+
+    return next_fixture
+
 def get_today():
-    today_test = get_container().find('h2', string="Today")
+    today_test = get_scores_fixtures_container().find('h2', string="Today")
     if today_test:
         today_html = today_test.find_next_sibling().find('ul')
         today = format_html(today_html)
@@ -59,6 +73,14 @@ def format_html(html):
     else:
         dict['home_score'] = home.find_next().text
         dict['away_score'] = away.find_next().text
+
+    in_prog_test = html.find('span', class_='sp-c-fixture__status')
+    if in_prog_test:
+        dict['progress'] = in_prog_test.text
+
+    link_test = html.find('a')
+    if link_test:
+        dict['link'] = "https://www.bbc.com" + link_test['href']
 
     return dict
 
@@ -95,11 +117,27 @@ def get_articles():
 
 def format_article(article_html):
     article = {
-              "url":article_html.a['href'],
+              "url":"https://www.bbc.com" + article_html.a['href'],
               "title":article_html.a.text
               }
 
     return article
 
+def time_diff():
+    current_mod = requests.get('http://worldtimeapi.org/api/ip').json()
+    london_mod = requests.get('http://worldtimeapi.org/api/timezone/Europe/London').json()
+
+    current_zone = current_mod['timezone']
+    london_zone = london_mod['timezone']
+    diff = int(current_mod['utc_offset'][:3]) - int(london_mod['utc_offset'][:3])
+
+    time_info = {
+                'current_zone':current_zone,
+                'london_zone':london_zone,
+                'time_difference':diff
+                }
+
+    return time_info
+
 if __name__ == '__main__':
-    print(get_scores())
+    print(time_diff())
